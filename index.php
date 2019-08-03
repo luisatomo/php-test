@@ -8,9 +8,13 @@ header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers
 require __DIR__ .'/vendor/autoload.php';
 require __DIR__ .'/config.php';
 
+error_reporting(E_ALL); ini_set('display_errors', 1);
+
 $mc=new App\Controller\MainController();
 
 $orderBy='id';
+
+$direction='ASC';
 
 if(isset($_GET['action']) && $_GET['action']!=''){
     
@@ -27,22 +31,57 @@ if(isset($_GET['action']) && $_GET['action']!=''){
         $orderBy=$_GET['order'];
 
     }
+
+    if( isset($_GET['direction'] ) ){
+
+        if( $_GET['direction']=='ASC' 
+            || $_GET['direction']=='DESC'  
+        )
+        $direction=$_GET['direction'];
+
+    }
     
     switch($action){
 
+        /* 
+        * index.php?action=read&order=id&direction 
+        */
+
         case 'read':
 
-            echo $mc->Phonebook($pdo, $orderBy);
+            echo $mc->Phonebook($pdo, $orderBy, $direction);
 
         break;
+
+        /* 
+        * index.php?action=create
+        * POST JSON data
+        {
+            "data": 
+            [ 
+                {"firstname":"Luis T", "surname":"Mendoza", 
+                    "emails":[{"email":"luis@atomoweb.com"},
+                        {"email":"info@atomoweb.com"}], 
+                    "phones":[{"phone":"+591.79821755"},
+                    {"phone":"+591.12323232"}] },
+                {"firstname":"F T", "surname":"Terrazas", 
+                    "emails":[{"email":"luis2@atomoweb.com"},
+                        {"email":"info2@atomoweb.com"}], 
+                        "phones":[{"phone":"+591.78881455"},
+                        {"phone":"+591.14324232"}] }
+            ]
+        }
+        */
         
         case 'create':
 
-            if(isset($_POST['data']) ){
+            $json = file_get_contents('php://input');
 
-                $data=json_decode($_POST['data']);
+            if($json){
+
+                $data=json_decode($json);
         
-                echo $mc->Create($pdo, $data);
+                echo $mc->NewContact($pdo, $data);
         
             }
 
@@ -76,14 +115,14 @@ if(isset($_GET['action']) && $_GET['action']!=''){
 
         default:
 
-            echo $mc->Phonebook($pdo, $orderBy);
+            echo $mc->Phonebook($pdo, $orderBy, $direction);
 
         break;
     }
 }
 else{
 
-    echo $mc->Phonebook($pdo, $orderBy);
+    echo $mc->Phonebook($pdo, $orderBy, $direction);
 
 }
 //echo $mc->NewContact($pdo);

@@ -47,12 +47,13 @@ class Contact
             $stmt->bindParam(1, $this->firstname,\PDO::PARAM_STR);
             $stmt->bindParam(2, $this->surname,\PDO::PARAM_STR);
             $stmt->execute();
+            $id=$this->conn->lastInsertId();
             $this->conn->commit();
-            $success=array(200, 'Success');
+            $success=array('code'=>200, 'message'=>'Success, Contact has been added', "id"=>$id);
             return $success;
         }catch (Exception $e){
             $this->conn->rollback();
-            $error=array(400, $e->getMessage());
+            $error=array('code'=>400, 'message'=>$e->getMessage());
             return $error;
         }
     }
@@ -80,8 +81,9 @@ class Contact
     public function read(){
         try {
             //$this->conn->beginTransaction();
-            $stmt = $this->conn->prepare("select * from contact");
-            //$stmt->bindParam(1, $this->id,\PDO::PARAM_INT);
+            $stmt = $this->conn->prepare("select * from contact order by ?,?");
+            $stmt->bindParam(1, $order,\PDO::PARAM_STR);
+            $stmt->bindParam(2, $direction,\PDO::PARAM_STR);
             $stmt->execute();
             //$this->conn->commit();
             //$success=array(200, 'Success');
@@ -94,7 +96,7 @@ class Contact
         }
     }
 
-    public function readOne($id){
+    /*public function readOne($id){
         try {
             $this->conn->beginTransaction();
             $stmt = $this->conn->prepare("select * from contact where id = ?");
@@ -108,7 +110,7 @@ class Contact
             $error=array(400, $e->getMessage());
             return $error;
         }
-    }
+    }*/
 
     public function delete(){
         try {
