@@ -1,5 +1,7 @@
 Use config.php.dist to configure the database and rename it to config.php
 
+execute composer install
+
 CREATE CONTACT: 
 
 
