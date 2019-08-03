@@ -7,6 +7,9 @@ class Email
     private $email;
 
     private $contact;
+
+    private $conn;
+
     
     public function __construct(\PDO $pdo)
     {
@@ -52,7 +55,7 @@ class Email
     public function read($id){
         try {
             //$this->conn->beginTransaction();
-            $stmt = $this->conn->prepare("select * from email where contact_id = ?");
+            $stmt = $this->conn->prepare("SELECT * FROM email where contact_id = ?");
             $stmt->bindParam(1, $id,\PDO::PARAM_INT);
             $stmt->execute();
             //$this->conn->commit();
@@ -63,6 +66,25 @@ class Email
             $this->conn->rollback();
             $error=array('code' => 400, 'message' => $e->getMessage());
             return $error;
+        }
+    }
+
+    public function delete($id){
+        try {
+
+            $this->conn->beginTransaction();
+            $stmt = $this->conn->prepare("DELETE FROM email where contact_id = ?");
+            $stmt->bindParam(1, $id,\PDO::PARAM_INT);
+            $stmt->execute();
+            $this->conn->commit();
+            $success=array('code' => 200, 'message' => 'Deleted');
+            return $success;
+
+        }catch (Exception $e){
+            $this->conn->rollback();
+            $error=array('code' => 400, 'message' => $e->getMessage());
+            return $error;
+            
         }
     }
 

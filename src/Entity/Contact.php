@@ -60,20 +60,20 @@ class Contact
 
     
 
-    public function update(){
+    public function update($id){
         try {
             $this->conn->beginTransaction();
-            $stmt = $this->conn->prepare("update contact set firstname = ?, surname = ? where id = ?");
+            $stmt = $this->conn->prepare("UPDATE contact SET firstname = ?, surname = ? where id = ?");
             $stmt->bindParam(1, $this->firstname,\PDO::PARAM_STR);
             $stmt->bindParam(2, $this->surname,\PDO::PARAM_STR);
             $stmt->bindParam(3, $this->id,\PDO::PARAM_INT);
             $stmt->execute();
             $this->conn->commit();
-            $success=array(200, 'Success');
+            $success=array('code'=>200, 'message'=>'Success, Contact has been added', "id"=>$id);
             return $success;
         }catch (Exception $e){
             $this->conn->rollback();
-            $error=array(400, $e->getMessage());
+            $error=array('code'=>400, 'message'=>$e->getMessage());
             return $error;
         }
     }
@@ -81,7 +81,7 @@ class Contact
     public function read(){
         try {
             //$this->conn->beginTransaction();
-            $stmt = $this->conn->prepare("select * from contact order by ?,?");
+            $stmt = $this->conn->prepare("SELECT * FROM contact order by ?,?");
             $stmt->bindParam(1, $order,\PDO::PARAM_STR);
             $stmt->bindParam(2, $direction,\PDO::PARAM_STR);
             $stmt->execute();
@@ -112,21 +112,23 @@ class Contact
         }
     }*/
 
-    public function delete(){
+    public function delete($id){
         try {
+
             $this->conn->beginTransaction();
             $stmt = $this->conn->prepare("DELETE FROM contact where id = ?");
-            $stmt->bindParam(1, $this->id,\PDO::PARAM_STR);
+            $stmt->bindParam(1, $id,\PDO::PARAM_INT);
             $stmt->execute();
             $this->conn->commit();
-            echo 'Success';
+            $success=array('code' => 200, 'message' => 'Success, The contact with id='.$id.' and their phones and emails have been deleted.');
+            return $success;
+
         }catch (Exception $e){
             $this->conn->rollback();
-            echo $e->getMessage();
+            $error=array('code' => 400, 'message' => $e->getMessage());
+            return $error;
+            
         }
     }
 
-    public function readAll(){
-
-    }
 }

@@ -152,11 +152,25 @@ class MainController{
 
     }
 
-    public function UpdateContact($id){
+    public function UpdateContact($pdo, $id){
 
     }
 
-    public function DeleteContact($id){
+    public function DeleteContact($pdo, $id){
+
+        $emails = new Email($pdo);
+
+        $emails->delete($id);
+
+        $phones = new Phone($pdo);
+
+        $phones->delete($id);
+
+        $contact = new Contact($pdo);
+        
+        $response=$contact->delete($id);
+
+        return json_encode($response);
 
     }
 

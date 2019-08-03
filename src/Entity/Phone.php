@@ -7,6 +7,9 @@ class Phone
     private $phone;
 
     private $contact;
+
+    private $conn;
+
     
     public function __construct(\PDO $pdo)
     {
@@ -52,7 +55,7 @@ class Phone
     public function read($id){
         try {
             //$this->conn->beginTransaction();
-            $stmt = $this->conn->prepare("select * from phone where contact_id = ?");
+            $stmt = $this->conn->prepare("SELECT * FROM phone where contact_id = ?");
             $stmt->bindParam(1, $id,\PDO::PARAM_INT);
             $stmt->execute();
             //$this->conn->commit();
@@ -65,4 +68,24 @@ class Phone
             return $error;
         }
     }
+
+    public function delete($id){
+        try {
+
+            $this->conn->beginTransaction();
+            $stmt = $this->conn->prepare("DELETE FROM phone where contact_id = ?");
+            $stmt->bindParam(1, $id,\PDO::PARAM_INT);
+            $stmt->execute();
+            $this->conn->commit();
+            $success=array('code' => 200, 'message' => 'Deleted');
+            return $success;
+
+        }catch (Exception $e){
+            $this->conn->rollback();
+            $error=array('code' => 400, 'message' => $e->getMessage());
+            return $error;
+            
+        }
+    }
+
 }

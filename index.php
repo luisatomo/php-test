@@ -86,28 +86,36 @@ if(isset($_GET['action']) && $_GET['action']!=''){
             }
 
         break;
+
+        /* 
+        * index.php?action=update&id=ID
+        */
         
         case 'update':
 
             if(isset($_POST['data']) && isset($_GET['id'])){
 
                 $id=$_GET['id'];
-
-                $data=json_decode($_POST['data']);
         
                 echo $mc->Update($pdo, $id, $data );
         
             }
 
         break;
+        
+        /* 
+        * index.php?action=delete&id=ID
+        */
 
         case 'delete':
+        
 
             if(isset($_GET['id'])){
 
-                $data=json_decode($_POST['data']);
+
+                $id=$_GET['id'];
     
-                echo $mc->Delete($pdo, $id);
+                echo $mc->DeleteContact($pdo, $id);
     
             }
 
