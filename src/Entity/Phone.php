@@ -88,4 +88,27 @@ class Phone
         }
     }
 
+    public function updatePhone($phone, $id, $contact){
+        try {
+            //echo $phone, $id, $contact;
+            $this->conn->beginTransaction();
+            $stmt = $this->conn->prepare("UPDATE phone SET phone = ? where id = ? and contact_id = ?");
+            $stmt->bindParam(1, $phone,\PDO::PARAM_STR);
+            $stmt->bindParam(2, $id,\PDO::PARAM_INT);
+            $stmt->bindParam(3, $contact,\PDO::PARAM_INT);
+            $stmt->execute();
+            $countr = $stmt->rowCount();
+            $this->conn->commit();
+            if($countr>0)
+            $success=array('code'=>200, 'message'=>'Success, Phone has been updated', "id"=>$id);
+            else
+            $success=array('code'=>200, 'message'=>'Phone has not been updated', "id"=>$id);
+            return $success;
+        }catch (Exception $e){
+            $this->conn->rollback();
+            $error=array('code'=>400, 'message'=>$e->getMessage());
+            return $error;
+        }
+    }
+
 }

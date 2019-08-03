@@ -30,10 +30,12 @@ class MainController{
                 "phones" => []
                 );
 
-                $email=new Email($pdo);
-                $responseEmail=$email->read($id);
+                $contactID=$id;
 
-                if($response['code']==200){
+                $email=new Email($pdo);
+                $responseEmail=$email->read($contactID);
+
+                if($responseEmail['code']==200){
                     //$emails=array();
 
                     while ($rowEmail = $responseEmail['data']->fetch(\PDO::FETCH_ASSOC)){
@@ -53,9 +55,9 @@ class MainController{
                 }
 
                 $phone=new Phone($pdo);
-                $responsePhone=$phone->read($id);
+                $responsePhone=$phone->read($contactID);
 
-                if($response['code']==200){
+                if($responsePhone['code']==200){
                     //$phones=array();
 
                     while ($rowPhone = $responsePhone['data']->fetch(\PDO::FETCH_ASSOC)){
@@ -152,7 +154,88 @@ class MainController{
 
     }
 
-    public function UpdateContact($pdo, $id){
+    public function UpdateContact($pdo, $data){
+
+        $jsondata=array();
+        $jsondata['data']=array();
+        
+        if($data->data){
+            
+            $contacts=$data->data;
+            $jsoncontacts=array();
+            $jsoncontacts['contacts']=array();
+            
+            foreach( $contacts as $row ){
+                
+                $jsoncontact=array();
+                $jsoncontact['contact']=array();
+                $jsoncontact['emails']=array();
+                $jsoncontact['phones']=array();
+
+                //I need to implement a load method
+                $contact=new Contact($pdo);
+
+                if(!isset($row->id))
+                continue;
+                else
+                $id=$row->id;
+
+                $updatec=array();
+
+                if(isset($row->firstname))
+                    $updatec['firstname']=$row->firstname;
+                
+                if(isset($row->surname))
+                    $updatec['surname']=$row->surname;
+
+                $response=$contact->updateContact($updatec, $id);
+
+                array_push($jsoncontact['contact'],$response);
+
+                if(isset($row->emails)){
+            
+                    $emails=$row->emails;
+            
+                    foreach($emails as $rowEmail){
+            
+                        $email=new Email($pdo);
+                    
+                        if(isset($rowEmail->Email) && isset($rowEmail->EmailID)){
+
+                            $response=$email->updateEmail($rowEmail->Email, $rowEmail->EmailID, $id );
+        
+                            array_push($jsoncontact['emails'], $response);
+                        }
+                    
+                    }
+                }
+        
+                if(isset($row->phones)){
+
+                    $phones=$row->phones;
+            
+                    foreach($phones as $rowPhone){
+
+                        $phone=new Phone($pdo);
+                        
+                        if(isset($rowPhone->Phone) && isset($rowPhone->PhoneID)){
+                            //echo $rowPhone->Phone, $rowPhone->PhoneID, $id;
+                            $response=$phone->updatePhone($rowPhone->Phone, $rowPhone->PhoneID, $id );
+
+    
+                            array_push($jsoncontact['phones'], $response);
+                        }
+                    }
+
+                }
+
+                array_push($jsoncontacts['contacts'], $jsoncontact);
+
+            }
+
+            return json_encode($jsoncontacts);
+
+        }
 
     }
 

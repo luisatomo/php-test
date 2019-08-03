@@ -44,7 +44,7 @@ if(isset($_GET['action']) && $_GET['action']!=''){
     switch($action){
 
         /* 
-        * index.php?action=read&order=id&direction 
+        * index.php?action=read 
         */
 
         case 'read':
@@ -55,7 +55,7 @@ if(isset($_GET['action']) && $_GET['action']!=''){
 
         /* 
         * index.php?action=create
-        * POST JSON data
+        * Payload
         {
             "data": 
             [ 
@@ -88,16 +88,25 @@ if(isset($_GET['action']) && $_GET['action']!=''){
         break;
 
         /* 
-        * index.php?action=update&id=ID
+        * index.php?action=update
+        * Payload
+        {
+            "data": [ {"id":19, "firstname":"Luis21", "surname":"Mendoza21", 
+                "emails": [{"EmailID":21, "Email": "test1@atomoweb.com"}], 
+                "phones":[{"PhoneID":17, "Phone":"1234"}] 
+            }]
+        }
         */
         
         case 'update':
 
-            if(isset($_POST['data']) && isset($_GET['id'])){
+            $json = file_get_contents('php://input');
 
-                $id=$_GET['id'];
+            if($json){
+
+                $data=json_decode($json);
         
-                echo $mc->Update($pdo, $id, $data );
+                echo $mc->UpdateContact($pdo, $data );
         
             }
 
@@ -133,6 +142,7 @@ else{
     echo $mc->Phonebook($pdo, $orderBy, $direction);
 
 }
-//echo $mc->NewContact($pdo);
+
+//Upload Contact Image
 
 

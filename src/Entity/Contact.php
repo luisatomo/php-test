@@ -60,16 +60,45 @@ class Contact
 
     
 
-    public function update($id){
+    public function updateContact($update, $id){
         try {
             $this->conn->beginTransaction();
-            $stmt = $this->conn->prepare("UPDATE contact SET firstname = ?, surname = ? where id = ?");
-            $stmt->bindParam(1, $this->firstname,\PDO::PARAM_STR);
-            $stmt->bindParam(2, $this->surname,\PDO::PARAM_STR);
-            $stmt->bindParam(3, $this->id,\PDO::PARAM_INT);
-            $stmt->execute();
-            $this->conn->commit();
-            $success=array('code'=>200, 'message'=>'Success, Contact has been added', "id"=>$id);
+            $query='UPDATE contact SET';
+            $count=0;
+            if(isset($update['firstname'])){
+                $query.=' firstname = ?';
+                $count++;
+            }
+            if(isset($update['surname'])){
+                if($count>0)
+                $query.=', ';
+                $query.=' surname = ?';
+                $count++;
+            }
+            $query.=' where id = ?';
+
+            
+            if($count>0){
+                $stmt = $this->conn->prepare($query);
+                $count=0;
+
+                if(isset($update['firstname'])){
+                $count++;
+                $stmt->bindParam($count, $update['firstname'],\PDO::PARAM_STR);
+                }
+                
+                if(isset($update['surname'])){
+                $count++;
+                $stmt->bindParam($count, $update['surname'],\PDO::PARAM_STR);
+                }
+
+                $count++;
+                $stmt->bindParam($count, $id,\PDO::PARAM_INT);
+
+                $stmt->execute();
+                $this->conn->commit();
+            }
+            $success=array('code'=>200, 'message'=>'Success, Contact has been updated', "id"=>$id);
             return $success;
         }catch (Exception $e){
             $this->conn->rollback();
@@ -77,6 +106,8 @@ class Contact
             return $error;
         }
     }
+
+    
 
     public function read(){
         try {
